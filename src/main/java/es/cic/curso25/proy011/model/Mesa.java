@@ -27,6 +27,9 @@ public class Mesa {
     @Max(20)
     private int numPatas;
 
+    @Column(length = 20)
+    private String meterial;
+
     @OneToMany(mappedBy = "mesa", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Silla> sillas;
 
@@ -75,6 +78,15 @@ public class Mesa {
         this.numPatas = numPatas;
     }
 
+    
+    public String getMeterial() {
+        return meterial;
+    }
+
+    public void setMeterial(String meterial) {
+        this.meterial = meterial;
+    }
+
     public List<Silla> getSillas() {
         return sillas;
     }
@@ -120,6 +132,7 @@ public class Mesa {
             return false;
         return true;
     }
+
 
     @Override
     public String toString() {
