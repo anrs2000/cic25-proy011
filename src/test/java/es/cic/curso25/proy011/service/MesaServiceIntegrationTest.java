@@ -17,7 +17,7 @@ import es.cic.curso25.proy011.model.Silla;
 import es.cic.curso25.proy011.repository.MesaRepository;
 import jakarta.transaction.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*; 
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class MesaServiceIntegrationTest {
@@ -36,7 +36,7 @@ public class MesaServiceIntegrationTest {
     Mesa mesaGuardada;
 
     @BeforeEach
-    void preparacion(){
+    void preparacion() {
         mesa = new Mesa("azul", "redonda", 4, "madera");
 
         sillas = new ArrayList<>();
@@ -54,7 +54,7 @@ public class MesaServiceIntegrationTest {
         sillas.add(silla4);
 
         for (int i = 0; i < sillas.size(); i++) {
-            mesa.addSilla(sillas.get(i));       
+            mesa.addSilla(sillas.get(i));
         }
 
         mesaGuardada = mesaService.postMesa(mesa);
@@ -68,12 +68,12 @@ public class MesaServiceIntegrationTest {
 
         assertTrue(mesaBorrada.isEmpty());
 
-        assertThrows(NotFoundException.class, ()->{
+        assertThrows(NotFoundException.class, () -> {
             mesaService.getMesa(mesaGuardada.getId());
         });
     }
 
-    //Con esto + el beforeEach, estaría probando también el método post
+    // Con esto + el beforeEach, estaría probando también el método post
     @Test
     void testGetMesa() {
         Mesa mesaObtenida = mesaService.getMesa(mesaGuardada.getId());
@@ -82,6 +82,29 @@ public class MesaServiceIntegrationTest {
         assertEquals(mesaObtenida.getMaterial(), mesaGuardada.getMaterial());
         assertEquals(mesaObtenida.getNumPatas(), mesaGuardada.getNumPatas());
         assertEquals(mesaObtenida.getForma(), mesaGuardada.getForma());
+    }
+
+    @Test
+    void testGetAllMesas() {
+        List<Mesa> todasLasMesas = mesaService.getAllMesas();
+        assertTrue(todasLasMesas.size() >= 1);
+    }
+
+    @Test
+    void testGetSillasDeMesa(){
+
+    }
+
+    @Test
+    @Transactional
+    void testAgregarSilla() {
+        int numInicialSillas = mesaGuardada.getSillas().size();
+
+        Silla sillaNueva = new Silla(3, true, "azul");
+
+        Mesa mesaConSilla = mesaService.agregarSilla(sillaNueva, mesaGuardada.getId());
+
+        assertTrue(mesaConSilla.getSillas().size() == numInicialSillas + 1);
     }
 
     @Test
@@ -96,15 +119,15 @@ public class MesaServiceIntegrationTest {
         nuevasSillas.add(nuevSilla2);
         nuevasSillas.add(nuevSilla3);
 
-
         Mesa mesaActualizada = new Mesa("morada", "cuadrada", 7, "granito");
 
-        
         for (int i = 0; i < nuevasSillas.size(); i++) {
             mesaActualizada.addSilla(nuevasSillas.get(i));
         }
 
-        mesaService.updateMesa(mesaGuardada.getId(), mesaActualizada);
+        Long id = mesaGuardada.getId();
+
+        mesaService.updateMesa(id, mesaActualizada);
 
         Mesa mesaDesdeBD = mesaService.getMesa(mesaGuardada.getId());
 
@@ -113,7 +136,24 @@ public class MesaServiceIntegrationTest {
         assertEquals(mesaGuardada.getId(), mesaDesdeBD.getId());
         assertEquals(mesaActualizada.getMaterial(), mesaDesdeBD.getMaterial());
         assertEquals(mesaActualizada.getNumPatas(), mesaDesdeBD.getNumPatas());
+        assertEquals(mesaActualizada.getSillas().size(), mesaDesdeBD.getSillas().size());
+    }
+
+    @Test
+    @Transactional
+    void testUpdateSillaEnMesa() {
+        Silla sillaActualizada = new Silla(12, true, "plateado");
+        mesaService.updateSillaEnMesa(mesaGuardada.getSillas().get(0).getId(), mesaGuardada.getId(), sillaActualizada);
         
-        
+        Mesa mesaActualizada = mesaService.getMesa(mesaGuardada.getId());
+        List<Silla> todasLasSillas = mesaActualizada.getSillas();
+
+        Optional<Silla> sillaBuscada = todasLasSillas.stream()
+                .filter(s -> s.getColor().equalsIgnoreCase("plateado"))
+                .filter(Silla::isRespaldo)
+                .filter(s -> s.getNumPatas() == 12)
+                .findFirst();
+
+        assertTrue(sillaBuscada.isPresent());
     }
 }

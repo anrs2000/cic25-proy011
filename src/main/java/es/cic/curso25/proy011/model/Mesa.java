@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,11 +35,12 @@ public class Mesa {
     @Column(length = 20)
     private String material;
 
-    @OneToMany(mappedBy = "mesa", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "mesa", orphanRemoval = false, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Silla> sillas = new ArrayList<>();
 
     // Método para generar la relación bidireccionalmente al añadir un objeto silla
+    @Transactional
     public void addSilla(Silla silla) {
         silla.setMesa(this);
         sillas.add(silla);
@@ -105,19 +107,20 @@ public class Mesa {
         return sillas;
     }
 
-    public void setSillas(List<Silla> sillas) {
-        // Quitamos las referencias actuales
-        Iterator<Silla> iterator = this.sillas.iterator();
-        while (iterator.hasNext()) {
-            Silla silla = iterator.next();
-            silla.setMesa(null);// Quitamos la referencia al padre del hijo
-            iterator.remove(); // Y la referencia al hijo del padre
+    public void setSillas(List<Silla> nuevasSillas) {
+        // Eliminar las sillas que ya no están en la nueva lista
+        List<Silla> sillasParaEliminar = new ArrayList<>();
+        for (Silla sillaExistente : this.sillas) {
+            if (!nuevasSillas.contains(sillaExistente)) {
+                this.deleteSilla(sillaExistente);
+            }
         }
+        this.sillas.removeAll(sillasParaEliminar);
 
-        // Agregamos las nuevas relaciones bidireccionalmente, utilizando el método add
-        if (sillas != null) {
-            for (Silla silla : sillas) {
-                addSilla(silla);
+        // Agregar o actualizar las nuevas sillas
+        for (Silla nuevaSilla : nuevasSillas) {
+            if (!this.sillas.contains(nuevaSilla)) {
+                addSilla(nuevaSilla); // Asocia mesa <-> silla
             }
         }
     }
