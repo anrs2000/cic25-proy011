@@ -1,11 +1,15 @@
 package es.cic.curso25.proy011.model;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,7 +35,8 @@ public class Mesa {
     private String material;
 
     @OneToMany(mappedBy = "mesa", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Silla> sillas;
+    @JsonManagedReference
+    private List<Silla> sillas = new ArrayList<>();
 
     // Método para generar la relación bidireccionalmente al añadir un objeto silla
     public void addSilla(Silla silla) {
@@ -44,6 +49,16 @@ public class Mesa {
     public void deleteSilla(Silla silla) {
         silla.setMesa(null);
         sillas.remove(silla);
+    }
+
+    public Mesa() {
+    }
+
+    public Mesa(String color, String forma, @Max(20) int numPatas, String material) {
+        this.color = color;
+        this.forma = forma;
+        this.numPatas = numPatas;
+        this.material = material;
     }
 
     public Long getId() {
@@ -78,13 +93,12 @@ public class Mesa {
         this.numPatas = numPatas;
     }
 
-    
     public String getMaterial() {
         return material;
     }
 
-    public void setMaterial(String meterial) {
-        this.material = meterial;
+    public void setMaterial(String material) {
+        this.material = material;
     }
 
     public List<Silla> getSillas() {
@@ -92,17 +106,17 @@ public class Mesa {
     }
 
     public void setSillas(List<Silla> sillas) {
-        //Quitamos las referencias actuales
+        // Quitamos las referencias actuales
         Iterator<Silla> iterator = this.sillas.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             Silla silla = iterator.next();
-            silla.setMesa(null);//Quitamos la referencia al padre del hijo
-            iterator.remove(); //Y la referencia al hijo del padre
+            silla.setMesa(null);// Quitamos la referencia al padre del hijo
+            iterator.remove(); // Y la referencia al hijo del padre
         }
 
-        //Agregamos las nuevas relaciones bidireccionalmente, utilizando el método add
-        if(sillas != null){
-            for(Silla silla : sillas){
+        // Agregamos las nuevas relaciones bidireccionalmente, utilizando el método add
+        if (sillas != null) {
+            for (Silla silla : sillas) {
                 addSilla(silla);
             }
         }
@@ -132,7 +146,6 @@ public class Mesa {
             return false;
         return true;
     }
-
 
     @Override
     public String toString() {

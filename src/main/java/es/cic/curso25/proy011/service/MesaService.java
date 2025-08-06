@@ -46,7 +46,7 @@ public class MesaService {
         mesaEnBD.setNumPatas(mesa.getNumPatas());
         mesaEnBD.setSillas(mesa.getSillas());
 
-        return mesaEnBD;
+        return mesaRepository.save(mesaEnBD);
     }
 
     public void deleteMesa(Long id){

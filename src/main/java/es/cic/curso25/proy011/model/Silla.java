@@ -1,5 +1,8 @@
 package es.cic.curso25.proy011.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +25,20 @@ public class Silla {
     private String color;
 
     @ManyToOne
+    @JsonBackReference
     private Mesa mesa;
+
+
+    public Silla() {
+    }
+    
+
+    public Silla(int numPatas, boolean respaldo, String color) {
+        this.numPatas = numPatas;
+        this.respaldo = respaldo;
+        this.color = color;
+    }
+
 
     public Long getId() {
         return id;
@@ -91,8 +107,7 @@ public class Silla {
 
     @Override
     public String toString() {
-        return "Silla [id=" + id + ", numPatas=" + numPatas + ", respaldo=" + respaldo + ", color=" + color + ", mesa="
-                + mesa + "]";
+        return "Silla [id=" + id + ", numPatas=" + numPatas + ", respaldo=" + respaldo + ", color=" + color + "]";
     }
 
 }
