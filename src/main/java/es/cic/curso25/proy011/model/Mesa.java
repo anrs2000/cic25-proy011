@@ -1,11 +1,9 @@
 package es.cic.curso25.proy011.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -40,7 +38,6 @@ public class Mesa {
     private List<Silla> sillas = new ArrayList<>();
 
     // Método para generar la relación bidireccionalmente al añadir un objeto silla
-    @Transactional
     public void addSilla(Silla silla) {
         silla.setMesa(this);
         sillas.add(silla);
@@ -108,20 +105,16 @@ public class Mesa {
     }
 
     public void setSillas(List<Silla> nuevasSillas) {
-        // Eliminar las sillas que ya no están en la nueva lista
         List<Silla> sillasParaEliminar = new ArrayList<>();
         for (Silla sillaExistente : this.sillas) {
             if (!nuevasSillas.contains(sillaExistente)) {
-                this.deleteSilla(sillaExistente);
+                sillasParaEliminar.add(sillaExistente);
             }
         }
-        this.sillas.removeAll(sillasParaEliminar);
 
-        // Agregar o actualizar las nuevas sillas
-        for (Silla nuevaSilla : nuevasSillas) {
-            if (!this.sillas.contains(nuevaSilla)) {
-                addSilla(nuevaSilla); // Asocia mesa <-> silla
-            }
+        // Ahora eliminas afuera del ciclo
+        for (Silla silla : sillasParaEliminar) {
+            this.deleteSilla(silla);
         }
     }
 

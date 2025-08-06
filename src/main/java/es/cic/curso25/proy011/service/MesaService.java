@@ -63,6 +63,7 @@ public class MesaService {
         mesaEnBD.setColor(mesa.getColor());
         mesaEnBD.setMaterial(mesa.getMaterial());
         mesaEnBD.setNumPatas(mesa.getNumPatas());
+        
         mesaEnBD.setSillas(mesa.getSillas());
 
         return mesaRepository.save(mesaEnBD);

@@ -121,9 +121,7 @@ public class MesaServiceIntegrationTest {
 
         Mesa mesaActualizada = new Mesa("morada", "cuadrada", 7, "granito");
 
-        for (int i = 0; i < nuevasSillas.size(); i++) {
-            mesaActualizada.addSilla(nuevasSillas.get(i));
-        }
+        mesaActualizada.setSillas(nuevasSillas);
 
         Long id = mesaGuardada.getId();
 
