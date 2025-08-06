@@ -9,8 +9,8 @@ import es.cic.curso25.proy011.repository.MesaRepository;
 
 import java.util.Optional;
 
-import org.slf4j.Logger; 
-import org.slf4j.LoggerFactory; 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class MesaService {
@@ -20,13 +20,37 @@ public class MesaService {
     @Autowired
     MesaRepository mesaRepository;
 
-    public Mesa getMesa(Long id){
+    public Mesa getMesa(Long id) {
         LOGGER.info(String.format("Buscando la mesa con id %d", id));
         Optional<Mesa> mesa = mesaRepository.findById(id);
-        if(mesa.isEmpty()){
+        if (mesa.isEmpty()) {
             LOGGER.error(String.format("No se ha encontrado ninguna mesa con id %d", id, NotFoundException.class));
             throw new NotFoundException(String.format("No se ha encontrado ninguna mesa con id %d", id));
         }
         return mesa.get();
+    }
+
+    public Mesa postMesa(Mesa mesa) {
+        LOGGER.info("Creando una nueva mesa");
+        return mesaRepository.save(mesa);
+    }
+
+    public Mesa updateMesa(Long id, Mesa mesa) {
+        LOGGER.info(String.format("Actualizando la mesa con id %d", id));
+        // Comprobamos que exista una mesa con ese id
+        Mesa mesaEnBD = this.getMesa(id);
+
+        mesaEnBD.setForma(mesa.getForma());
+        mesaEnBD.setColor(mesa.getColor());
+        mesaEnBD.setMaterial(mesa.getMaterial());
+        mesaEnBD.setNumPatas(mesa.getNumPatas());
+        mesaEnBD.setSillas(mesa.getSillas());
+
+        return mesaEnBD;
+    }
+
+    public void deleteMesa(Long id){
+        LOGGER.info(String.format("Eliminando la mesa con id %d", id));
+        mesaRepository.deleteById(id);
     }
 }
