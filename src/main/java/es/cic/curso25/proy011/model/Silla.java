@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -26,6 +27,7 @@ public class Silla {
 
     @ManyToOne
     @JsonBackReference
+    @JoinColumn(name = "mesa_id", nullable = true)
     // @Column(nullable = true)
     private Mesa mesa;
 
