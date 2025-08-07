@@ -29,7 +29,6 @@ public class MesaService {
         LOGGER.info(String.format("Buscando la mesa con id %d", id));
         Optional<Mesa> mesa = mesaRepository.findById(id);
         if (mesa.isEmpty()) {
-            LOGGER.error(String.format("No se ha encontrado ninguna mesa con id %d", id, NotFoundException.class));
             throw new NotFoundException(String.format("No se ha encontrado ninguna mesa con id %d", id));
         }
         return mesa.get();
