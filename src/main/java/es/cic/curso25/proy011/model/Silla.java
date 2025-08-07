@@ -26,7 +26,7 @@ public class Silla {
     private String color;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonIgnore
     @JoinColumn(name = "mesa_id", nullable = true)
     // @Column(nullable = true)
     private Mesa mesa;

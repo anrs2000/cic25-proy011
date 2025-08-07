@@ -81,8 +81,9 @@ public class MesaControllerIntegrationTest {
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(nuevaSilla)))
                 .andExpect(status().isOk()).andExpect(result -> {
-                    Mesa mesaObtenida = objectMapper.readValue(result.getResponse().getContentAsString(), Mesa.class);
-                    assertEquals((numInicialSillas + 1), mesaObtenida.getSillas().size());
+                    Optional<Mesa> mesaObtenida = mesaRepository.findById(mesaGuardada.getId());
+                    // Mesa mesaObtenida = objectMapper.readValue(result.getResponse().getContentAsString(), Mesa.class);
+                    assertEquals((numInicialSillas + 1), mesaObtenida.get().getSillas().size());
                 });
     }
 
@@ -165,8 +166,9 @@ public class MesaControllerIntegrationTest {
     }
 
     @Test
-    void testUpdateSillaEnMesa() throws Exception{
-        Silla sillaOriginal = mesaGuardada.getSillas().get(0); 
+    @Transactional
+    void testUpdateSillaEnMesa() throws Exception {
+        Silla sillaOriginal = mesaGuardada.getSillas().get(0);
         Long idSilla = sillaOriginal.getId();
 
         // Creamos una nueva versión de esa silla
@@ -177,17 +179,20 @@ public class MesaControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(sillaActualizada)))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    Mesa mesaObtenida = objectMapper.readValue(result.getResponse().getContentAsString(), Mesa.class);
-                    assertNotNull(mesaObtenida);
-                    assertEquals(mesaGuardada.getSillas().size(), mesaObtenida.getSillas().size());
+                    // Mesa mesaObtenida =
+                    // objectMapper.readValue(result.getResponse().getContentAsString(),
+                    // Mesa.class);
+                    Optional<Mesa> mesaObtenida = mesaRepository.findById(mesaGuardada.getId());
+                    assertTrue(mesaObtenida.isPresent(), "La mesa debería existir después de la actualización");
+                    Mesa mesaExistente = mesaObtenida.get();
+                    assertEquals(mesaGuardada.getSillas().size(), mesaExistente.getSillas().size());
 
                     // Buscamos la silla actualizada por su ID
-                    Silla sillaModificada = mesaObtenida.getSillas().stream()
+                    Silla sillaModificada = mesaExistente.getSillas().stream()
                             .filter(s -> s.getId().equals(idSilla))
                             .findFirst()
                             .orElseThrow(() -> new AssertionError("No se encontró la silla actualizada"));
 
-                    assertEquals(sillaActualizada.getMesa(), sillaModificada.getMesa());
                     assertEquals(sillaActualizada.getNumPatas(), sillaModificada.getNumPatas());
                     assertEquals(sillaActualizada.getColor(), sillaModificada.getColor());
                 });

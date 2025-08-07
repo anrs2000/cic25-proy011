@@ -34,7 +34,7 @@ public class Mesa {
     private String material;
 
     @OneToMany(mappedBy = "mesa", orphanRemoval = false, cascade = CascadeType.ALL)
-    @JsonManagedReference
+    // @JsonManagedReference
     private List<Silla> sillas = new ArrayList<>();
 
     // Método para generar la relación bidireccionalmente al añadir un objeto silla
